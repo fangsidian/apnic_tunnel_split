@@ -9,14 +9,18 @@ def print_debug(hosts, range):
     print("route {} {} {}".format(hosts.network, hosts.netmask, "net_gateway"))
 
 
-def assembly_net_tools_command(hosts, commands):
-    commands.append("route {} {} {}".format(hosts.network, hosts.netmask, "net_gateway"))
+def assembly_route_add_command(hosts, commands):
+    commands.append("route add {} {} {}".format(hosts.network, hosts.netmask, "192.168.1.1"))
+    return commands
 
 
-def write_to_files(commands):
-    with open('tunnel_splt.txt', 'a') as the_file:
-        the_file.write('max-routes 10000\n')
-        the_file.write('route-nopull\n\n')
+def assembly_route_del_command(hosts, commands):
+    commands.append("route delete {} {}".format(hosts.network, hosts.netmask))
+    return commands
+
+
+def write_to_files(commands, filename):
+    with open(filename, 'a') as the_file:
         for command in commands:
             the_file.write(command + '\n')
 
@@ -29,7 +33,8 @@ def calculate_ip_range(count):
 def __main__():
     apnic = open("test.data", 'r')
     lines = apnic.readlines()
-    commands = []
+    add_commands = []
+    del_commands = []
     for raw_rule in lines:
         raw_rule = raw_rule.strip()
         match = re.search('CN\|ipv4.*allocated', raw_rule)
@@ -38,8 +43,10 @@ def __main__():
             range = calculate_ip_range(fields[4])
             hosts = ipaddr.IPv4Network('{}/{}'.format(fields[3], range))
             print_debug(hosts, range)
-            assembly_net_tools_command(hosts, commands)
-    write_to_files(commands)
+            add_commands = assembly_route_add_command(hosts, add_commands)
+            del_commands = assembly_route_del_command(hosts, del_commands)
+    write_to_files(add_commands, 'route_add.txt')
+    write_to_files(del_commands, 'route_del.txt')
 
 
 __main__()
