@@ -1,6 +1,8 @@
 import re
 import ipaddr
 
+GATEWAY = '172.17.0.1'
+
 
 def print_debug(hosts, range):
     print('mask {}'.format(hosts.netmask))
@@ -10,12 +12,12 @@ def print_debug(hosts, range):
 
 
 def assembly_route_add_command(hosts, commands):
-    commands.append("route add {} {} {}".format(hosts.network, hosts.netmask, "192.168.1.1"))
+    commands.append("route add -net {} netmask {} gw {}".format(hosts.network, hosts.netmask, GATEWAY))
     return commands
 
 
 def assembly_route_del_command(hosts, commands):
-    commands.append("route delete {} {}".format(hosts.network, hosts.netmask))
+    commands.append("route del -net {} netmask {} gw {}".format(hosts.network, hosts.netmask, GATEWAY))
     return commands
 
 
