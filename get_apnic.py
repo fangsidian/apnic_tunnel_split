@@ -1,7 +1,17 @@
 import re
 import ipaddr
+import requests
+
+http_proxy = "applicationwebproxy.nomura.com:80"
+https_proxy = "applicationwebproxy.nomura.com:8080"
+
+proxyDict = {
+    "http": http_proxy,
+    "https": https_proxy
+}
 
 GATEWAY = '172.17.0.1'
+APNIC_LATEST = 'http://ftp.apnic.net/stats/apnic/delegated-apnic-latest'
 
 
 def print_debug(hosts, range):
@@ -32,8 +42,21 @@ def calculate_ip_range(count):
     return 32 - (len(binaryFields4) - 1)
 
 
+def download_file(url):
+    local_file_name = url.split('/')[-1]
+    # NOTE the stream=True parameter below
+    with requests.get(url, stream=False, proxies=proxyDict) as r:
+        with open(local_file_name, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                if chunk:  # filter out keep-alive new chunks
+                    f.write(chunk)
+                    # f.flush()
+    return local_file_name
+
+
 def __main__():
-    apnic = open("test.data", 'r')
+    file_name = download_file(APNIC_LATEST)
+    apnic = open(file_name, 'r')
     lines = apnic.readlines()
     add_commands = []
     del_commands = []
