@@ -20,3 +20,9 @@ server=/.google.com.hk/208.67.222.222#443
 如果Additional DNSMasq Options里的内容太多，也可指定一个目录来读取这些配置信息
 
 conf-dir=/opt/etc/dnsmasq.d
+
+
+
+__TODO__
+1. wireguard support on ddwrt, and ISP provider
+2. IPv6 support for routeing and DNS split
